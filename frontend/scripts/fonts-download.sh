@@ -34,11 +34,9 @@ rm -f $ORIGINAL_FONTS_DIR/*
 mkdir -p $ORIGINAL_FONTS_DIR
 
 for URL in "${FONT_URLS[@]}"; do
-	wget -L "$URL" \
-		--directory-prefix=$ORIGINAL_FONTS_DIR \
-		--quiet \
-		--timestamping \
-		--show-progress
+	FILENAME=$(basename "$URL")
+	echo "Downloading $FILENAME..."
+	curl -L --progress-bar -o "$ORIGINAL_FONTS_DIR/$FILENAME" "$URL"
 done
 
 echo ""
