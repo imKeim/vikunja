@@ -159,14 +159,10 @@ echo "# Collect existing font files for cleanup"
 echo "###################################################"
 echo ""
 
-# Collect existing font files to remove later
-OLD_FONT_FILES=$(find $FONT_FOLDER -name "*.woff2" -type f 2>/dev/null || true)
-if [ -n "$OLD_FONT_FILES" ]; then
-    echo "Found existing font files to remove after generation:"
-    echo "$OLD_FONT_FILES"
-else
-    echo "No existing font files found"
-fi
+# Clean up old font files before generating new ones
+echo "Cleaning up old font files..."
+rm -f $FONT_FOLDER/*.woff2
+mkdir -p $FONT_FOLDER
 
 echo "\nUbuntu"
 instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-Regular.ttf" "" "Ubuntu-Regular"
@@ -176,24 +172,6 @@ instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-BoldItalic.ttf" "" "Ubuntu-BoldIta
 
 echo "\nSubsetting files complete"
 
-echo ""
-echo "###################################################"
-echo "# Clean up old font files"
-echo "###################################################"
-echo ""
-
-# Remove only the old font files we collected earlier
-if [ -n "$OLD_FONT_FILES" ]; then
-    echo "Removing old font files..."
-    echo "$OLD_FONT_FILES" | while read -r file; do
-        if [ -f "$file" ]; then
-            echo "Removing: $file"
-            rm -f "$file"
-        fi
-    done
-else
-    echo "No old font files to remove"
-fi
 
 echo ""
 echo "###################################################"
