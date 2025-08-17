@@ -10,7 +10,7 @@ $unicode-range: "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,\
 
 @font-face {
   font-family: 'Ubuntu';
-  src: url($font-files-path + 'Ubuntu-Regular_placeholder.woff2') format('woff2');
+  src: url($font-files-path + 'Ubuntu-Regular_ab0c2a0a.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -19,7 +19,7 @@ $unicode-range: "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,\
 
 @font-face {
   font-family: 'Ubuntu';
-  src: url($font-files-path + 'Ubuntu-Italic_placeholder.woff2') format('woff2');
+  src: url($font-files-path + 'Ubuntu-Italic_ff818307.woff2') format('woff2');
   font-style: italic;
   font-weight: 400;
   font-display: swap;
@@ -28,7 +28,7 @@ $unicode-range: "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,\
 
 @font-face {
   font-family: 'Ubuntu';
-  src: url($font-files-path + 'Ubuntu-Bold_placeholder.woff2') format('woff2');
+  src: url($font-files-path + 'Ubuntu-Bold_c0d84901.woff2') format('woff2');
   font-style: normal;
   font-weight: 700;
   font-display: swap;
@@ -37,7 +37,7 @@ $unicode-range: "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,\
 
 @font-face {
   font-family: 'Ubuntu';
-  src: url($font-files-path + 'Ubuntu-BoldItalic_placeholder.woff2') format('woff2');
+  src: url($font-files-path + 'Ubuntu-BoldItalic_461d6bf4.woff2') format('woff2');
   font-style: italic;
   font-weight: 700;
   font-display: swap;
