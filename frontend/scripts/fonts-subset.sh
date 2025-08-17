@@ -40,23 +40,24 @@ mkdir -p $TEMP_FOLDER
 # https://fonts.googleapis.com/css2?family=Open+Sans
 # Include the basic latin range plus latin-ext characters so glyphs with
 # diacritics (used for example in Polish) are present in the generated fonts.
-UNICODE_LATIN_SUBSET="U+0000-00FF,U+0100-017F,U+0131,U+0152-0153,U+02BB-02BC,\
+# We also add the Cyrillic range for Russian language support.
+UNICODE_SUBSET="U+0000-00FF,U+0100-017F,U+0131,U+0152-0153,U+02BB-02BC,\
 U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,\
-U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD,U+0400-04FF"
 
 get_filename_without_type() {
 	filename=$1
-	dirname=$(dirname $filename)
+	dirname=$(dirname "$filename")
 	# Extract the file type using parameter expansion
 	filetype=${filename##*.}
-	basename=$(basename $filename .$filetype)
-	echo $basename
+	basename=$(basename "$filename" ."$filetype")
+	echo "$basename"
 }
 
 # This function takes a font file and creates a subset of it using a specified set of unicode characters.
 instance_and_subset () {
 	# Define default arguments for the subsetter.
-	DEFAULT_SUBSETTER_ARGS="--layout-features=* --unicodes=${UNICODE_LATIN_SUBSET}"
+	DEFAULT_SUBSETTER_ARGS="--layout-features=* --unicodes=${UNICODE_SUBSET}"
 
 	# Assign function arguments to variables with more descriptive names.
 	INPUT_FONT_FILE=$1
@@ -66,7 +67,7 @@ instance_and_subset () {
 
 	# If the output font basename is not provided, use the input font file's basename as the output font basename.
 	if [ -z "$OUTPUT_FONT_BASENAME" ]; then
-		INPUT_FONT_BASENAME=$(get_filename_without_type $INPUT_FONT_FILE)
+		INPUT_FONT_BASENAME=$(get_filename_without_type "$INPUT_FONT_FILE")
 		OUTPUT_FONT_BASENAME=$INPUT_FONT_BASENAME
 	fi
 
@@ -75,7 +76,7 @@ instance_and_subset () {
 
 	CHECKSUM=$(
 		# Concatenate the contents of the input font file, the instancer arguments, and the subsetter arguments
-		printf "%s%s" "$(cat $INPUT_FONT_FILE)" "$INSTANCER_ARGS" "$SUBSETTER_ARGS" |
+		printf "%s%s" "$(cat "$INPUT_FONT_FILE")" "$INSTANCER_ARGS" "$SUBSETTER_ARGS" |
 		# Calculate the Blake2b checksum of the concatenated string
 		b2sum |
 		# Extract the checksum from the output of b2sum (it's the first field)
@@ -90,7 +91,7 @@ instance_and_subset () {
 	OUTPUT_FONT_FILE="${OUTPUT_FOLDER}/${OUTPUT_FONT_BASENAME}.woff2"
 
 	# Check if the output font file already exists
-	if test -f $OUTPUT_FONT_FILE; then
+	if test -f "$OUTPUT_FONT_FILE"; then
 		echo "${OUTPUT_FONT_FILE} exists"
 		return 0
 	fi
@@ -99,14 +100,14 @@ instance_and_subset () {
 
 	if [ -n "$INSTANCER_ARGS" ]; then
 		# If the INSTANCER_ARGS variable is set, use fonttools to create a font instance
-		fonttools varLib.instancer --output $FONT_INSTANCE $INPUT_FONT_FILE $INSTANCER_ARGS
+		fonttools varLib.instancer --output "$FONT_INSTANCE" "$INPUT_FONT_FILE" "$INSTANCER_ARGS"
 	else
 		# Otherwise, just copy the input font file to the font instance file
-		cp $INPUT_FONT_FILE $FONT_INSTANCE
+		cp "$INPUT_FONT_FILE" "$FONT_INSTANCE"
 	fi
 
 	# Use pyftsubset to create a subset of the font instance and save it to the output font file
-	pyftsubset $FONT_INSTANCE --output-file=$OUTPUT_FONT_FILE --flavor=woff2 $SUBSETTER_ARGS
+	pyftsubset "$FONT_INSTANCE" --output-file="$OUTPUT_FONT_FILE" --flavor=woff2 "$SUBSETTER_ARGS"
 
 	echo "${OUTPUT_FONT_BASENAME} subsetted."
 }
@@ -167,32 +168,11 @@ else
     echo "No existing font files found"
 fi
 
-echo "\nOpen Sans"
-# we drop the wdth axis for all
-
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans[wdth,wght].ttf" "wdth=drop wght=400:700" "OpenSans[wght]"
-
-# we restrict the wght range
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans[wdth,wght].ttf" "wdth=drop wght=400" "OpenSans-Regular"
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans[wdth,wght].ttf" "wdth=drop wght=700" "OpenSans-Bold"
-
-echo "\nOpen Sans Italic"
-# we drop the wdth axis for all
-
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans-Italic[wdth,wght].ttf" "wdth=drop wght=400:700" "OpenSans-Italic[wght]"
-
-# we restrict the wght range
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans-Italic[wdth,wght].ttf" "wdth=drop wght=400" "OpenSans-RegularItalic"
-instance_and_subset "${ORIGINAL_FONTS}/OpenSans-Italic[wdth,wght].ttf" "wdth=drop wght=700" "OpenSans-BoldItalic"
-
-echo "\nQuicksand"
-
-instance_and_subset "${ORIGINAL_FONTS}/Quicksand[wght].ttf" "wght=400:700"
-
-# we restrict the wght range
-instance_and_subset "${ORIGINAL_FONTS}/Quicksand[wght].ttf" "wght=400" "Quicksand-Regular"
-instance_and_subset "${ORIGINAL_FONTS}/Quicksand[wght].ttf" "wght=600" "Quicksand-SemiBold"
-instance_and_subset "${ORIGINAL_FONTS}/Quicksand[wght].ttf" "wght=700" "Quicksand-Bold"
+echo "\nUbuntu"
+instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-Regular.ttf" "" "Ubuntu-Regular"
+instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-Italic.ttf" "" "Ubuntu-Italic"
+instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-Bold.ttf" "" "Ubuntu-Bold"
+instance_and_subset "${ORIGINAL_FONTS}/Ubuntu-BoldItalic.ttf" "" "Ubuntu-BoldItalic"
 
 echo "\nSubsetting files complete"
 
@@ -240,35 +220,17 @@ for file in $FONT_FOLDER/*.woff2; do
         basename=$(basename "$file")
         
         case $basename in
-            OpenSans\[wght\]_*.woff2)
-                update_font_reference "OpenSans\[wght\]" "$basename"
+            Ubuntu-Regular_*.woff2)
+                update_font_reference "Ubuntu-Regular" "$basename"
                 ;;
-            OpenSans-Italic\[wght\]_*.woff2)
-                update_font_reference "OpenSans-Italic\[wght\]" "$basename"
+            Ubuntu-Italic_*.woff2)
+                update_font_reference "Ubuntu-Italic" "$basename"
                 ;;
-            Quicksand\[wght\]_*.woff2)
-                update_font_reference "Quicksand\[wght\]" "$basename"
+            Ubuntu-Bold_*.woff2)
+                update_font_reference "Ubuntu-Bold" "$basename"
                 ;;
-            Quicksand-Regular_*.woff2)
-                update_font_reference "Quicksand-Regular" "$basename"
-                ;;
-            Quicksand-SemiBold_*.woff2)
-                update_font_reference "Quicksand-SemiBold" "$basename"
-                ;;
-            Quicksand-Bold_*.woff2)
-                update_font_reference "Quicksand-Bold" "$basename"
-                ;;
-            OpenSans-Regular_*.woff2)
-                update_font_reference "OpenSans-Regular" "$basename"
-                ;;
-            OpenSans-RegularItalic_*.woff2)
-                update_font_reference "OpenSans-RegularItalic" "$basename"
-                ;;
-            OpenSans-Bold_*.woff2)
-                update_font_reference "OpenSans-Bold" "$basename"
-                ;;
-            OpenSans-BoldItalic_*.woff2)
-                update_font_reference "OpenSans-BoldItalic" "$basename"
+            Ubuntu-BoldItalic_*.woff2)
+                update_font_reference "Ubuntu-BoldItalic" "$basename"
                 ;;
         esac
     fi
