@@ -14,11 +14,12 @@ trap err_report ERR
 
 ORIGINAL_FONTS_DIR="./originalMedia/fonts"
 
-# update these if there is a new version
+# Ubuntu fonts from Google Fonts repository
 FONT_URLS=(
-"https://github.com/googlefonts/opensans/blob/27d060e1aad6886daeda67629ee28189f795f534/fonts/variable/OpenSans%5Bwdth%2Cwght%5D.ttf?raw=true"
-"https://github.com/googlefonts/opensans/blob/27d060e1aad6886daeda67629ee28189f795f534/fonts/variable/OpenSans-Italic%5Bwdth%2Cwght%5D.ttf?raw=true"
-"https://github.com/andrew-paglinawan/QuicksandFamily/blob/db6de44878582966f45a0debaef10d57108d93a7/fonts/Quicksand%5Bwght%5D.ttf?raw=true"
+"https://raw.githubusercontent.com/google/fonts/main/ufl/ubuntu/Ubuntu-Regular.ttf"
+"https://raw.githubusercontent.com/google/fonts/main/ufl/ubuntu/Ubuntu-Italic.ttf"
+"https://raw.githubusercontent.com/google/fonts/main/ufl/ubuntu/Ubuntu-Bold.ttf"
+"https://raw.githubusercontent.com/google/fonts/main/ufl/ubuntu/Ubuntu-BoldItalic.ttf"
 )
 
 
@@ -28,10 +29,12 @@ echo "# Download font files"
 echo "###################################################"
 echo ""
 
+# Clean the directory before downloading new fonts
+rm -f $ORIGINAL_FONTS_DIR/*
 mkdir -p $ORIGINAL_FONTS_DIR
 
-for URL in ${FONT_URLS[@]}; do
-	wget -L $URL \
+for URL in "${FONT_URLS[@]}"; do
+	wget -L "$URL" \
 		--directory-prefix=$ORIGINAL_FONTS_DIR \
 		--quiet \
 		--timestamping \
@@ -39,18 +42,4 @@ for URL in ${FONT_URLS[@]}; do
 done
 
 echo ""
-echo "###################################################"
-echo "# Remove '?raw=true' filename suffix"
-echo "###################################################"
-echo ""
-
-# Iterate over all files in directory with filetype ending in "?raw=true"
-for file in $ORIGINAL_FONTS_DIR/*?raw=true; do
-	# Remove "?raw=true" from file name and store in variable
-	new_name=$(echo $file | sed 's/?raw=true//')
-
-	# Overwrite existing file with new name
-	mv -v $file $new_name
-done
-
-echo "Renaming files complete"
+echo "Font download complete."
